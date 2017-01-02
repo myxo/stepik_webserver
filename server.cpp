@@ -14,6 +14,7 @@
 const size_t MESSAGE_SIZE = 1024;
 
 int descriptor;
+std::string directory;
 
 void server_descriptor_release(int signum){
     close(descriptor);
@@ -121,7 +122,7 @@ void connectoin_handler(int socket, struct sockaddr_in client){
     }
     std::cout << "Getting " << path << std::endl;
     
-    std::string response = get_response(path);
+    std::string response = get_response(directory + "/" + path);
 
     std::cout << "-----\n";
     std::cout << response << std::endl;
@@ -132,7 +133,7 @@ void connectoin_handler(int socket, struct sockaddr_in client){
     close(socket);
 }
 
-void server_routine(std::string& ip, int port, std::string& directory){
+void server_routine(std::string& ip, int port){
     descriptor = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
     if (descriptor == -1){
         std::cerr << "Cannot create socket\n";
@@ -176,7 +177,7 @@ void print_help_message(){
 
 int main(int argc, char *argv[]){
     int opt, flags = 0, port;
-    std::string ip, directory;
+    std::string ip;
     bool demonise_process = true;
 
     while((opt = getopt(argc, argv, "h:p:d:s")) != -1){
@@ -200,6 +201,6 @@ int main(int argc, char *argv[]){
         return 0;
     }
 
-    server_routine(ip, port, directory);
+    server_routine(ip, port);
     return 0;
 }
