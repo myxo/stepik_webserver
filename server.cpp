@@ -47,6 +47,18 @@ std::string parse_header(std::string message){
     return path;
 }
 
+void log(std::string& message){
+    FILE *f = fopen("log", "w+");
+    fprintf(f, "%s", message.c_str());
+    fclose(f);
+}
+
+void log(char *message){
+    FILE *f = fopen("log", "w+");
+    fprintf(f, "%s", message);
+    fclose(f);
+}
+
 std::string get_response(std::string path){
     std::string response;
     
@@ -87,6 +99,7 @@ void connectoin_handler(int socket, struct sockaddr_in client){
     //send(socket, message, strlen(message), MSG_NOSIGNAL);
     ssize_t recv_size = recv(socket, buffer, MESSAGE_SIZE, 0);
     std::cout << "Recieve message: " << buffer << std::endl << std::endl;
+    log(buffer);
     
     std::string path = parse_header(buffer);
     if (path == "/"){
