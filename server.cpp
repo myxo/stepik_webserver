@@ -18,7 +18,7 @@ std::string directory;
 
 void server_descriptor_release(int signum){
     close(descriptor);
-    std::cout << "release server descriptor\n";
+    std::cerr << "release server descriptor\n";
     exit(1);
 }
 
@@ -108,25 +108,25 @@ void connectoin_handler(int socket, struct sockaddr_in client){
     char buffer[MESSAGE_SIZE] = {0};
     char *client_ip = inet_ntoa(client.sin_addr);
     int client_port = ntohs(client.sin_port);
-    std::cout << "Connect from " << client_ip << ":" << client_port << std::endl;
+    std::cerr << "Connect from " << client_ip << ":" << client_port << std::endl;
     //char message[] = "Ok\n";
     //send(socket, message, strlen(message), MSG_NOSIGNAL);
     /*ssize_t recv_size = */recv(socket, buffer, MESSAGE_SIZE, 0);
-    std::cout << "Recieve message: " << buffer << std::endl << std::endl;
+    std::cerr << "Recieve message: " << buffer << std::endl << std::endl;
     log(buffer);
     
     std::string path = parse_header(buffer);
     if (path == "/"){
-        std::cout << "root path\n";
+        std::cerr << "root path\n";
         path = "index.html";
     }
-    std::cout << "Getting " << path << std::endl;
+    std::cerr << "Getting " << path << std::endl;
     
     std::string response = get_response(directory + "/" + path);
 
-    std::cout << "-----\n";
-    std::cout << response << std::endl;
-    std::cout << "-----\n";
+    std::cerr << "-----\n";
+    std::cerr << response << std::endl;
+    std::cerr << "-----\n";
     send(socket, response.c_str(), response.size()+1, MSG_NOSIGNAL);
         
     shutdown(socket, SHUT_RDWR);
@@ -172,7 +172,7 @@ void server_routine(std::string& ip, int port){
 }
 
 void print_help_message(){
-    std::cout << "usage: ./final -h <ip> -p <port> -d <directory>\n";
+    std::cerr << "usage: ./final -h <ip> -p <port> -d <directory>\n";
 }
 
 int main(int argc, char *argv[]){
