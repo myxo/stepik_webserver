@@ -91,7 +91,7 @@ std::string get_response(std::string path){
                 break;
             file_content.append(buffer);
         }
-        flose(f);
+        fclose(f);
 
         response.append("HTTP/1.0 200 OK\r\n");
         response.append("Content-length: ");
