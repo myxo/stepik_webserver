@@ -18,7 +18,7 @@ std::string directory;
 
 void server_descriptor_release(int signum){
     close(descriptor);
-    std::cerr << "release server descriptor\n";
+    //std::cerr << "release server descriptor\n";
     exit(1);
 }
 
@@ -42,11 +42,11 @@ std::string parse_header(std::string message){
     // }
 
     if (method != "GET"){
-        std::cerr << "Unsupported method\n";
+        //std::cerr << "Unsupported method\n";
         return "";
     }
     // if (protocol_version != "HTTP/1.0"){
-    //     std::cerr << "Unsupported protocol version\n";
+    //     //std::cerr << "Unsupported protocol version\n";
     //     return "";
     // }
 
@@ -66,7 +66,7 @@ std::string parse_header(std::string message){
 void log(char *message){
     FILE *f = fopen("/tmp/log", "w+");
     if (f == NULL){
-        std::cerr << "cannot open log file\n";
+        //std::cerr << "cannot open log file\n";
     } else {
         fprintf(f, "%s", message);
         fclose(f);
@@ -108,25 +108,25 @@ void connectoin_handler(int socket, struct sockaddr_in client){
     char buffer[MESSAGE_SIZE] = {0};
     char *client_ip = inet_ntoa(client.sin_addr);
     int client_port = ntohs(client.sin_port);
-    std::cerr << "Connect from " << client_ip << ":" << client_port << std::endl;
+    //std::cerr << "Connect from " << client_ip << ":" << client_port << std::endl;
     //char message[] = "Ok\n";
     //send(socket, message, strlen(message), MSG_NOSIGNAL);
     /*ssize_t recv_size = */recv(socket, buffer, MESSAGE_SIZE, 0);
-    std::cerr << "Recieve message: " << buffer << std::endl << std::endl;
-    log(buffer);
+    //std::cerr << "Recieve message: " << buffer << std::endl << std::endl;
+    // log(buffer);
     
     std::string path = parse_header(buffer);
     if (path == "/"){
-        std::cerr << "root path\n";
+        //std::cerr << "root path\n";
         path = "index.html";
     }
-    std::cerr << "Getting " << path << std::endl;
+    //std::cerr << "Getting " << path << std::endl;
     
     std::string response = get_response(directory + "/" + path);
 
-    std::cerr << "-----\n";
-    std::cerr << response << std::endl;
-    std::cerr << "-----\n";
+    //std::cerr << "-----\n";
+    //std::cerr << response << std::endl;
+    //std::cerr << "-----\n";
     send(socket, response.c_str(), response.size()+1, MSG_NOSIGNAL);
         
     shutdown(socket, SHUT_RDWR);
@@ -136,7 +136,7 @@ void connectoin_handler(int socket, struct sockaddr_in client){
 void server_routine(std::string& ip, int port){
     descriptor = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
     if (descriptor == -1){
-        std::cerr << "Cannot create socket\n";
+        //std::cerr << "Cannot create socket\n";
         exit(1);
     }
     struct sockaddr_in sa;
@@ -144,12 +144,12 @@ void server_routine(std::string& ip, int port){
     sa.sin_port = htons(port);
     sa.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
     if (bind(descriptor, (sockaddr *)(&sa), sizeof(sa)) < 0){
-        // std::cerr << "Bind fail\n";
+        // //std::cerr << "Bind fail\n";
         perror("bind fail: ");
         exit(1);
     }
     if (listen(descriptor, SOMAXCONN) == -1){
-        // std::cerr << "Listen fail: " << errno();
+        // //std::cerr << "Listen fail: " << errno();
         perror("listen fail: ");
         exit(1);
     }
@@ -172,7 +172,7 @@ void server_routine(std::string& ip, int port){
 }
 
 void print_help_message(){
-    std::cerr << "usage: ./final -h <ip> -p <port> -d <directory>\n";
+    //std::cerr << "usage: ./final -h <ip> -p <port> -d <directory>\n";
 }
 
 int main(int argc, char *argv[]){
