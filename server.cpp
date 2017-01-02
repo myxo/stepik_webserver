@@ -149,6 +149,9 @@ void print_help_message(){
 }
 
 int main(int argc, char *argv[]){
+    if (fork() != 0){
+        return 0;
+    }
     int opt, flags = 0, port;
     std::string ip, directory;
 
