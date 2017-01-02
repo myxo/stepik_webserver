@@ -48,13 +48,13 @@ std::string parse_header(std::string message){
 }
 
 void log(std::string& message){
-    FILE *f = fopen("log", "w+");
+    FILE *f = fopen("/home/box/final/log", "w+");
     fprintf(f, "%s", message.c_str());
     fclose(f);
 }
 
 void log(char *message){
-    FILE *f = fopen("log", "w+");
+    FILE *f = fopen("/home/box/final/log", "w+");
     fprintf(f, "%s", message);
     fclose(f);
 }
