@@ -6,11 +6,20 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <errno.h>
+#include <signal.h>
 #include <string.h>
 
 #include <thread>
 
 const size_t MESSAGE_SIZE = 1024;
+
+int descriptor;
+
+void server_descriptor_release(int signum){
+    close(descriptor);
+    std::cout << "release server descriptor\n";
+    exit(1);
+}
 
 std::string parse_header(std::string message){
     std::string method, path, protocol_version;
@@ -42,21 +51,25 @@ std::string parse_header(std::string message){
 
     path = path.substr(1);
     index1 = path.find('?');
-    if (index1 != std::string::npos)
+    if (index1 != (int)std::string::npos)
         path = path.substr(0,index1);
     return path;
 }
 
-void log(std::string& message){
-    FILE *f = fopen("/home/box/final/log", "w+");
-    fprintf(f, "%s", message.c_str());
-    fclose(f);
-}
+// void log(std::string& message){
+//     FILE *f = fopen("/home/box/final/log", "w+");
+//     fprintf(f, "%s", message.c_str());
+//     fclose(f);
+// }
 
 void log(char *message){
-    FILE *f = fopen("/home/box/final/log", "w+");
-    fprintf(f, "%s", message);
-    fclose(f);
+    FILE *f = fopen("/tmp/log", "w+");
+    if (f == NULL){
+        std::cerr << "cannot open log file\n";
+    } else {
+        fprintf(f, "%s", message);
+        fclose(f);
+    }
 }
 
 std::string get_response(std::string path){
@@ -97,7 +110,7 @@ void connectoin_handler(int socket, struct sockaddr_in client){
     std::cout << "Connect from " << client_ip << ":" << client_port << std::endl;
     //char message[] = "Ok\n";
     //send(socket, message, strlen(message), MSG_NOSIGNAL);
-    ssize_t recv_size = recv(socket, buffer, MESSAGE_SIZE, 0);
+    /*ssize_t recv_size = */recv(socket, buffer, MESSAGE_SIZE, 0);
     std::cout << "Recieve message: " << buffer << std::endl << std::endl;
     log(buffer);
     
@@ -120,7 +133,7 @@ void connectoin_handler(int socket, struct sockaddr_in client){
 }
 
 void server_routine(std::string& ip, int port, std::string& directory){
-    int descriptor = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+    descriptor = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
     if (descriptor == -1){
         std::cerr << "Cannot create socket\n";
         exit(1);
@@ -140,7 +153,7 @@ void server_routine(std::string& ip, int port, std::string& directory){
         exit(1);
     }
 
-    char buffer[MESSAGE_SIZE];
+    // char buffer[MESSAGE_SIZE];
     while(1){
         struct sockaddr_in client;
         int c = sizeof(struct sockaddr_in);
@@ -162,17 +175,16 @@ void print_help_message(){
 }
 
 int main(int argc, char *argv[]){
-    if (fork() != 0){
-        return 0;
-    }
     int opt, flags = 0, port;
     std::string ip, directory;
+    bool demonise_process = true;
 
-    while((opt = getopt(argc, argv, "h:p:d:")) != -1){
+    while((opt = getopt(argc, argv, "h:p:d:s")) != -1){
         switch(opt){
             case 'h': ip = optarg;          flags++; break;
             case 'p': port = atoi(optarg);  flags++; break;
             case 'd': directory = optarg;   flags++; break;
+            case 's': demonise_process = false;      break;
             default : print_help_message(); exit(1);
         }
     }
@@ -180,6 +192,12 @@ int main(int argc, char *argv[]){
     if (flags != 3){
         print_help_message();
         exit(1);
+    }
+
+    signal(SIGINT, server_descriptor_release);
+
+    if (demonise_process && fork() != 0){
+        return 0;
     }
 
     server_routine(ip, port, directory);
