@@ -47,11 +47,12 @@ void SlaveServer::connectoin_handler(int socket){
     // std::cerr << "-----\n";
     // std::cerr << response << std::endl;
     // std::cerr << "-----\n";
-    sleep(2);
+    // sleep(2);
     send(socket, response.c_str(), response.size()+1, MSG_NOSIGNAL);
         
     shutdown(socket, SHUT_RDWR);
     close(socket);
+    send_responce_to_master();
 }
 
 std::string SlaveServer::parse_header(std::string message){
