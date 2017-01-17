@@ -35,6 +35,7 @@ int SlaveServerHandler::getPid(){
 void SlaveServerHandler::send_work(int sending_socket){
     sock_fd_write(message_socket_, (void *)"1", 1, sending_socket);
     working_ = true;
+    close(sending_socket);
 }
 
 bool SlaveServerHandler::isWorking(){
